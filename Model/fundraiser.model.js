@@ -8,7 +8,6 @@ const fundraiserSchema = mongoose.Schema(
         raised:{type:Number,default:0},
         userID:String,
         funders:[String]
-        
     },
     {versionKey:false}
 )

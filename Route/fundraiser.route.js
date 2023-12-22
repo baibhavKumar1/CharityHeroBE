@@ -6,7 +6,7 @@ const UserModel = require('../Model/user.model');
 const FundraiserModel = require('../Model/fundraiser.model');
 const auth = require('../Middleware/auth.middleware');
 require('dotenv').config();
-FundraiserRouter.use(auth)
+
 
 FundraiserRouter.get('/',async(req,res)=>{
     const {userID} = req.body;
@@ -19,26 +19,29 @@ FundraiserRouter.get('/',async(req,res)=>{
     }
 })
 
-FundraiserRouter.post("/create", async (req, res) => {
+FundraiserRouter.post("/create",auth, async (req, res) => {
     const { title } = req.body;
+    console.log(title)
     try {
-      let existing_title = await FundraiserModel.findOne({ title: title });
+      let existing_title = await FundraiserModel.findOne({ title });
+      console.log(existing_title)
       if (existing_title) {
         res.status(400).json({ message: "The donation request already exist" });
       } else {
-        const donationRequest = await FundraiserModel.create(req.body);
-        donationRequest.save();
+        const donationRequest = new FundraiserModel({...req.body,userID:req.body.userId});
+        await donationRequest.save();
         res.status(201).json(donationRequest);
       }
-    } catch (error) {
+    } catch (err) {
       res.status(500).send(err.message);
     }
   });
   
-  FundraiserRouter.patch('/fund/:id',async(req,res)=>{
+  FundraiserRouter.patch('/fund/:id',auth,async(req,res)=>{
     const {id} = req.params;
     try{
       const user = await UserModel.findById(req.body.userId);
+      console.log(user)
       const fund= await FundraiserModel.findById(id);
       if(fund.userID!==req.body.userId){
           const funding = await FundraiserModel.findByIdAndUpdate(id,
@@ -56,11 +59,12 @@ FundraiserRouter.post("/create", async (req, res) => {
     }
   })
 
-  FundraiserRouter.patch("/edit/:id", async (req, res) => {
+  FundraiserRouter.patch("/edit/:id",auth, async (req, res) => {
     const { id } = req.params;
+
     try {
         const fund= await FundraiserModel.findById(id);
-        if(fund.userID === req.body.userID){
+        if(fund.userID === req.body.userId){
       const donationRequest = await FundraiserModel.findByIdAndUpdate(
         id,
         req.body
@@ -79,7 +83,7 @@ FundraiserRouter.post("/create", async (req, res) => {
     const { id } = req.params;
     try {
       const isuser = await FundraiserModel.findById(id);
-      if (isuser.userID !== req.body.userID) {
+      if (isuser.userID !== req.body.userId) {
         res.status(401).json({ message: "Not Authorized" });
       } else {
         const donationRequest = await FundraiserModel.findByIdAndDelete(id);

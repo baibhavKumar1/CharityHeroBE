@@ -5,7 +5,6 @@ const userSchema = mongoose.Schema(
         name:String,
         email:String,
         pass:String,
-        
     },{versionKey:false}
 )
 

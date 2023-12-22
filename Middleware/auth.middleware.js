@@ -14,7 +14,7 @@ const auth = async (req, res, next) => {
             if (decoded) {
                 req.body.userId = decoded.userID;
                 console.log(req.body.userId)
-                return next();
+                next();
             } else {
                 return res.status(400).json({ message: "Unauthorized" });
             }

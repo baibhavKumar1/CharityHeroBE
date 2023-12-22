@@ -1,0 +1,11 @@
+user
+/register
+/login
+/logout
+
+fundraiser
+/get
+/create
+/fund/:id
+/edit/:id
+/delete/:id

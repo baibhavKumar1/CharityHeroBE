@@ -40,13 +40,15 @@ UserRouter.post('/register',async(req,res)=>{
 UserRouter.post('/login',async(req,res)=>{
     const {email,pass} = req.body;
     try{
-        const user = await UserModel.findOne({email});
-        if(!user){
+        const user = await UserModel.find({email});
+        console.log(user)
+        if(user.length==0){
             res.status(400).send("User is not registered");
         }
-        bcrypt.compare(pass, user.pass, (err,decoded)=>{
+        bcrypt.compare(pass, user[0].pass, (err,decoded)=>{
+            console.log(decoded)
             if(decoded){
-                const token = jwt.sign({userID:user._id},"Secret");
+                const token = jwt.sign({userID:user[0]._id},"Secret");
                 res.status(200).json({"message":"User Logged in","Token":token})
             }else{
                 res.status(400).send("Wrong credentials");
