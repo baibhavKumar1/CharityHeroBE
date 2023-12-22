@@ -10,10 +10,11 @@ const auth = async (req, res, next) => {
             return res.status(440).json({ message: "Session Expired, Login Again" });
         }
 
-        jwt.verify(token, "SECRET", (err, decoded) => {
+        jwt.verify(token, "Secret", (err, decoded) => {
             if (decoded) {
-                req.body.userId = decoded.userId;
-                next();
+                req.body.userId = decoded.userID;
+                console.log(req.body.userId)
+                return next();
             } else {
                 return res.status(400).json({ message: "Unauthorized" });
             }

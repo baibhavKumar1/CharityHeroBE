@@ -6,6 +6,10 @@ const BlacklistModel = require('../Model/blacklist.model');
 const UserModel = require('../Model/user.model');
 require('dotenv').config();
 
+UserRouter.get('/',(req,res)=>{
+    res.send('on')
+})
+
 UserRouter.post('/register',async(req,res)=>{
     try{
         const {name,email,pass} = req.body;
@@ -14,13 +18,13 @@ UserRouter.post('/register',async(req,res)=>{
             return res.status(400).send("User already registered");
         }
         else{
-            bcrypt.hash(pass,44,async(err,hash)=>{
+            bcrypt.hash(pass,4,async(err,hash)=>{
                 if(err){
                     res.status(400).send(err.message)
                 } 
                 const newUser = new UserModel(
                     {
-                        name,pass:hash,email,funded:0
+                        name,pass:hash,email
                     }
                 );
                 await newUser.save();

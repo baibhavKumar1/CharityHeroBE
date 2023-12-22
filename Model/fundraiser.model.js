@@ -8,10 +8,11 @@ const fundraiserSchema = mongoose.Schema(
         raised:{type:Number,default:0},
         userID:String,
         funders:[String]
+        
     },
     {versionKey:false}
 )
 
 const FundraiserModel = mongoose.model("Fundraiser",fundraiserSchema);
 
-module.exports= FundraiserModel
+module.exports= FundraiserModel 

@@ -6,7 +6,7 @@ const UserModel = require('../Model/user.model');
 const FundraiserModel = require('../Model/fundraiser.model');
 const auth = require('../Middleware/auth.middleware');
 require('dotenv').config();
-
+FundraiserRouter.use(auth)
 
 FundraiserRouter.get('/',async(req,res)=>{
     const {userID} = req.body;
@@ -19,7 +19,7 @@ FundraiserRouter.get('/',async(req,res)=>{
     }
 })
 
-FundraiserRouter.post("/create", auth, async (req, res) => {
+FundraiserRouter.post("/create", async (req, res) => {
     const { title } = req.body;
     try {
       let existing_title = await FundraiserModel.findOne({ title: title });
@@ -38,13 +38,13 @@ FundraiserRouter.post("/create", auth, async (req, res) => {
   FundraiserRouter.patch('/fund/:id',async(req,res)=>{
     const {id} = req.params;
     try{
-      const user = await UserModel.findById(req.body.userID);
+      const user = await UserModel.findById(req.body.userId);
       const fund= await FundraiserModel.findById(id);
-      if(fund.userID!==req.body.userID){
+      if(fund.userID!==req.body.userId){
           const funding = await FundraiserModel.findByIdAndUpdate(id,
               {
                   $inc:{raised:req.body.raised},
-                  $push:{funders:req.body.userID}
+                  $push:{funders:req.body.userId}
               },{new:true});
           await funding.save();
           res.status(200).send("Funded");
@@ -59,7 +59,7 @@ FundraiserRouter.post("/create", auth, async (req, res) => {
   FundraiserRouter.patch("/edit/:id", async (req, res) => {
     const { id } = req.params;
     try {
-        const fund= await FundraiserModel.findbyID(id);
+        const fund= await FundraiserModel.findById(id);
         if(fund.userID === req.body.userID){
       const donationRequest = await FundraiserModel.findByIdAndUpdate(
         id,
@@ -70,7 +70,7 @@ FundraiserRouter.post("/create", auth, async (req, res) => {
         else{
             res.status(400).send("unauthorized")
         }
-    } catch (error) {
+    } catch (err) {
       res.status(500).send(err.message);
     }
   });
@@ -83,7 +83,7 @@ FundraiserRouter.post("/create", auth, async (req, res) => {
         res.status(401).json({ message: "Not Authorized" });
       } else {
         const donationRequest = await FundraiserModel.findByIdAndDelete(id);
-        res.status(200).json("Donation Request updated successfully");
+        res.status(200).json("Donation Request deleted successfully");
       }
     } catch (error) {
       res.status(500).json({ message: err.message });

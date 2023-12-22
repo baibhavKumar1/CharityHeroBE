@@ -14,7 +14,7 @@ app.get('/',async(req,res)=>{
     res.status(200).send("On")
 })
 
-app.listen(3000,async()=>{
+app.listen(6000,async()=>{
     try {
         await connection;
         console.log("connected")
