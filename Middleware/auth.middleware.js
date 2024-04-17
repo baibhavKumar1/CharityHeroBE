@@ -1,27 +1,29 @@
-const jwt = require('jsonwebtoken');
-const BlacklistModel = require('../Model/blacklist.model');
-require('dotenv').config();
+const mongoose = require('mongoose');
+const jwt = require('jsonwebtoken')
+const BlackListModel = require('../Model/blacklist.model');
 
 const auth = async (req, res, next) => {
-    const token = req.headers.authorization?.split(" ")[1];
-    if (token) {
-        const blacklistedToken = await BlacklistModel.findOne({ token: token });
-        if (blacklistedToken) {
-            return res.status(440).json({ message: "Session Expired, Login Again" });
-        }
-
-        jwt.verify(token, "Secret", (err, decoded) => {
-            if (decoded) {
-                req.body.userId = decoded.userID;
-                console.log(req.body.userId)
-                next();
-            } else {
-                return res.status(400).json({ message: "Unauthorized" });
+    try {
+        const token = req.headers.authorization.split(" ")[1];
+        if (token) {
+            
+            const expired = await BlackListModel.findOne({token});
+            if (!expired) {
+                let decoded = jwt.verify(token, "token");
+                req.body.userID = decoded.userID;
+                req.body.avatar = decoded.userAvatar;
+                return next();
             }
-        });
-    } else {
-        res.status(400).json({ message: "Unauthorized" });
+            else {
+                res.status(400).send('User is logged out')
+            }
+        } 
+        else {
+            return res.status(400).send("Unauthorized");
+        }
+    } catch (err) {
+        return res.status(400).json({ "message": err.message });
     }
 }
 
-module.exports = auth
+module.exports = auth;
